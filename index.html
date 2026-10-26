@@ -3,33 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Entradas</title>
+    <title>Festivals & Tickets - Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f4f6f8; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: 0 auto; }
-        h1 { text-align: center; color: #1a1a2e; }
-        .event-card { background: #fff; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .event-title { margin-top: 0; color: #16213e; }
-        .ticket-option { border-top: 1px solid #eee; margin-top: 15px; padding-top: 15px; }
-        .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .price { font-size: 1.2em; font-weight: bold; color: #0f3460; }
-        form { display: grid; gap: 10px; margin-top: 10px; }
-        input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
-        button { background-color: #635bff; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-        button:hover { background-color: #4b44dc; }
-        .status { text-align: center; font-size: 1.1em; color: #666; margin-top: 20px; }
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background-attachment: fixed;
+            margin: 0;
+            padding: 40px 20px;
+            color: #fff;
+            min-height: 100vh;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { font-size: 2.8em; margin: 0; background: linear-gradient(45deg, #ff007f, #7928ca); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
+        p.subtitle { color: #a0aec0; font-size: 1.1em; margin-top: 10px; }
+        
+        .event-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+        }
+        .event-card:hover { transform: translateY(-5px); }
+        .event-title { margin-top: 0; color: #fff; font-size: 1.8em; font-weight: 600; }
+        .event-info { color: #cbd5e0; margin: 8px 0; font-size: 0.95em; }
+        
+        .ticket-option {
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 20px;
+            padding-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .ticket-info { flex: 1; min-width: 200px; }
+        .ticket-name { font-size: 1.1em; font-weight: 600; color: #ff007f; display: block; }
+        .price { font-size: 1.3em; font-weight: bold; color: #00ffcc; }
+        
+        form { display: flex; gap: 10px; flex-wrap: wrap; width: 100%; margin-top: 10px; }
+        input {
+            flex: 1;
+            min-width: 180px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+        }
+        input::placeholder { color: #a0aec0; }
+        input:focus { outline: none; border-color: #ff007f; }
+        
+        button {
+            background: linear-gradient(45deg, #ff007f, #7928ca);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        .status { text-align: center; font-size: 1.2em; color: #a0aec0; margin-top: 40px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Entradas Disponibles</h1>
+        <header>
+            <h1>Próximos Festivales</h1>
+            <p class="subtitle">Consigue tus entradas oficiales de forma rápida y segura</p>
+        </header>
+
         <div id="lista-eventos" class="status">Cargando eventos...</div>
     </div>
 
     <script>
-        // Sustituye por la URL real de tu Web Service en Render
         const API_URL = 'https://ticketing-pro.onrender.com';
 
         async function cargarEventos() {
@@ -39,7 +98,7 @@
                 const eventos = await response.json();
 
                 if (!eventos || eventos.length === 0) {
-                    contenedor.innerHTML = '<p>No hay eventos disponibles en este momento.</p>';
+                    contenedor.innerHTML = '<p>No hay festivales disponibles en este momento.</p>';
                     return;
                 }
 
@@ -50,34 +109,34 @@
                         evento.tipos_entrada.forEach(tipo => {
                             entradasHtml += `
                                 <div class="ticket-option">
-                                    <div class="ticket-header">
-                                        <span><strong>${tipo.nombre}</strong></span>
+                                    <div class="ticket-info">
+                                        <span class="ticket-name">🎟️ ${tipo.nombre}</span>
                                         <span class="price">${tipo.precio} €</span>
                                     </div>
                                     <form onsubmit="comprarEntrada(event, ${tipo.id})">
-                                        <input type="text" name="nombre" placeholder="Nombre completo" required>
-                                        <input type="email" name="email" placeholder="Correo electrónico" required>
-                                        <button type="submit">Comprar entrada</button>
+                                        <input type="text" name="nombre" placeholder="Tu nombre" required>
+                                        <input type="email" name="email" placeholder="Tu correo electrónico" required>
+                                        <button type="submit">Comprar</button>
                                     </form>
                                 </div>
                             `;
                         });
                     } else {
-                        entradasHtml = '<p><em>No hay tipos de entrada disponibles para este evento.</em></p>';
+                        entradasHtml = '<p style="color: #a0aec0; margin-top: 15px;"><em>Entradas próximamente a la venta.</em></p>';
                     }
 
                     contenedor.innerHTML += `
                         <div class="event-card">
                             <h2 class="event-title">${evento.titulo}</h2>
-                            <p>${evento.descripcion}</p>
-                            <p>📍 <strong>Lugar:</strong> ${evento.lugar}</p>
-                            <p>📅 <strong>Fecha:</strong> ${new Date(evento.fecha).toLocaleString()}</p>
+                            <p class="event-info">${evento.descripcion}</p>
+                            <p class="event-info">📍 <strong>Lugar:</strong> ${evento.lugar}</p>
+                            <p class="event-info">📅 <strong>Fecha:</strong> ${new Date(evento.fecha).toLocaleString()}</p>
                             ${entradasHtml}
                         </div>
                     `;
                 });
             } catch (error) {
-                contenedor.innerHTML = '<p>Error al conectar con el servidor.</p>';
+                contenedor.innerHTML = '<p style="color: #ff4d4d;">Error al conectar con el servidor de festivales.</p>';
                 console.error(error);
             }
         }
