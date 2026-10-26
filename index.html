@@ -8,88 +8,104 @@
     <style>
         * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body {
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            background-attachment: fixed;
             margin: 0;
             padding: 40px 20px;
             color: #fff;
             min-height: 100vh;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            transition: background-image 1s ease-in-out;
+            background-color: #0f0c29;
         }
-        .container { max-width: 900px; margin: 0 auto; }
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 8, 25, 0.85);
+            z-index: -1;
+        }
+        .container { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
         header { text-align: center; margin-bottom: 40px; }
-        h1 { font-size: 2.8em; margin: 0; background: linear-gradient(45deg, #ff007f, #7928ca); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
+        h1 { font-size: 3em; margin: 0; background: linear-gradient(45deg, #ff007f, #00ffcc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
         p.subtitle { color: #a0aec0; font-size: 1.1em; margin-top: 10px; }
         
         .event-card {
             background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             padding: 30px;
-            border-radius: 16px;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease;
+            border-radius: 20px;
+            margin-bottom: 35px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
-        .event-card:hover { transform: translateY(-5px); }
-        .event-title { margin-top: 0; color: #fff; font-size: 1.8em; font-weight: 600; }
-        .event-info { color: #cbd5e0; margin: 8px 0; font-size: 0.95em; }
+        .event-header { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+        .event-poster { width: 180px; height: 240px; object-fit: cover; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
+        .event-details { flex: 1; min-width: 250px; }
+        .event-title { margin: 0 0 10px 0; color: #fff; font-size: 2em; font-weight: 800; }
+        .event-info { color: #cbd5e0; margin: 6px 0; font-size: 1em; }
         
         .ticket-option {
-            background: rgba(0, 0, 0, 0.2);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            margin-top: 20px;
-            padding-top: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
         }
-        .ticket-info { flex: 1; min-width: 200px; }
-        .ticket-name { font-size: 1.1em; font-weight: 600; color: #ff007f; display: block; }
-        .price { font-size: 1.3em; font-weight: bold; color: #00ffcc; }
+        .ticket-info { flex: 1; min-width: 180px; }
+        .ticket-name { font-size: 1.2em; font-weight: 700; color: #ff007f; display: block; }
+        .price { font-size: 1.4em; font-weight: 800; color: #00ffcc; }
         
         form { display: flex; gap: 10px; flex-wrap: wrap; width: 100%; margin-top: 10px; }
         input {
-            flex: 1;
-            min-width: 180px;
-            padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.07);
+            flex: 1; min-width: 160px; padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: #fff;
-            font-size: 14px;
+            border-radius: 8px; color: #fff; font-size: 14px;
         }
         input::placeholder { color: #a0aec0; }
         input:focus { outline: none; border-color: #ff007f; }
         
         button {
             background: linear-gradient(45deg, #ff007f, #7928ca);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s;
+            color: white; border: none; padding: 12px 25px;
+            border-radius: 8px; font-weight: 700; cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
         }
-        button:hover { opacity: 0.9; }
+        button:hover { opacity: 0.9; transform: scale(1.02); }
         .status { text-align: center; font-size: 1.2em; color: #a0aec0; margin-top: 40px; }
     </style>
 </head>
 <body>
-
+    <div class="bg-overlay"></div>
     <div class="container">
         <header>
             <h1>Próximos Festivales</h1>
-            <p class="subtitle">Consigue tus entradas oficiales de forma rápida y segura</p>
+            <p class="subtitle">Vive la mejor experiencia en directo</p>
         </header>
-
-        <div id="lista-eventos" class="status">Cargando eventos...</div>
+        <div id="lista-eventos" class="status">Cargando festivales...</div>
     </div>
 
     <script>
-        const API_URL = 'https://ticketing-pro.onrender.com';
+        const API_URL = '';
+        const fondos = [
+            'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1920&q=80',
+            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1920&q=80',
+            'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1920&q=80'
+        ];
+        let bgIndex = 0;
+        function cambiarFondo() {
+            document.body.style.backgroundImage = `url('${fondos[bgIndex]}')`;
+            bgIndex = (bgIndex + 1) % fondos.length;
+        }
+        cambiarFondo();
+        setInterval(cambiarFondo, 6000);
 
         async function cargarEventos() {
             const contenedor = document.getElementById('lista-eventos');
@@ -98,7 +114,7 @@
                 const eventos = await response.json();
 
                 if (!eventos || eventos.length === 0) {
-                    contenedor.innerHTML = '<p>No hay festivales disponibles en este momento.</p>';
+                    contenedor.innerHTML = '<p>No hay festivales disponibles en este momento. ¡Crea uno desde el panel de administración!</p>';
                     return;
                 }
 
@@ -125,19 +141,27 @@
                         entradasHtml = '<p style="color: #a0aec0; margin-top: 15px;"><em>Entradas próximamente a la venta.</em></p>';
                     }
 
+                    const cartelImg = evento.cartel_url ? `<img src="${evento.cartel_url}" class="event-poster" alt="Cartel">` : '';
+
                     contenedor.innerHTML += `
                         <div class="event-card">
-                            <h2 class="event-title">${evento.titulo}</h2>
-                            <p class="event-info">${evento.descripcion}</p>
-                            <p class="event-info">📍 <strong>Lugar:</strong> ${evento.lugar}</p>
-                            <p class="event-info">📅 <strong>Fecha:</strong> ${new Date(evento.fecha).toLocaleString()}</p>
-                            ${entradasHtml}
+                            <div class="event-header">
+                                ${cartelImg}
+                                <div class="event-details">
+                                    <h2 class="event-title">${evento.titulo}</h2>
+                                    <p class="event-info">${evento.descripcion}</p>
+                                    <p class="event-info">📍 <strong>Lugar:</strong> ${evento.lugar}</p>
+                                    <p class="event-info">📅 <strong>Fecha:</strong> ${new Date(evento.fecha).toLocaleString()}</p>
+                                </div>
+                            </div>
+                            <div class="ticket-section">
+                                ${entradasHtml}
+                            </div>
                         </div>
                     `;
                 });
             } catch (error) {
-                contenedor.innerHTML = '<p style="color: #ff4d4d;">Error al conectar con el servidor de festivales.</p>';
-                console.error(error);
+                contenedor.innerHTML = '<p style="color: #ff4d4d;">Error al conectar con el servidor.</p>';
             }
         }
 
@@ -151,22 +175,13 @@
                 const response = await fetch(`${API_URL}/api/crear-pago`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        tipo_entrada_id: tipoEntradaId,
-                        cantidad: 1,
-                        comprador_nombre: nombre,
-                        comprador_email: email
-                    })
+                    body: JSON.stringify({ tipo_entrada_id: tipoEntradaId, cantidad: 1, comprador_nombre: nombre, comprador_email: email })
                 });
-
                 const data = await response.json();
-                if (data.url) {
-                    window.location.href = data.url;
-                } else {
-                    alert('Error al procesar el pago: ' + (data.error || 'Inténtalo de nuevo.'));
-                }
+                if (data.url) { window.location.href = data.url; }
+                else { alert('Error: ' + (data.error || 'Inténtalo de nuevo.')); }
             } catch (err) {
-                alert('Hubo un problema al conectar con la pasarela de pago.');
+                alert('Error al conectar con la pasarela de pago.');
             }
         }
 
