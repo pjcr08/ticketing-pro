@@ -14,7 +14,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Función para crear las tablas automáticamente si no existen
+// Función para crear las tablas automáticamente si no existen e insertar un evento de prueba
 async function inicializarBaseDeDatos() {
     try {
         await pool.query(`
@@ -54,9 +54,28 @@ async function inicializarBaseDeDatos() {
                 creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
-        console.log("Tablas verificadas o creadas correctamente en la base de datos.");
+
+        const eventosCount = await pool.query('SELECT COUNT(*) FROM eventos');
+        if (parseInt(eventosCount.rows[0].count) === 0) {
+            const eventoRes = await pool.query(`
+                INSERT INTO eventos (titulo, descripcion, fecha, lugar) 
+                VALUES ('Neon Summer Festival 2026', 'El mayor festival de música electrónica y urbana con artistas internacionales.', '2026-07-20 18:00:00', 'Recinto Ferial, Madrid')
+                RETURNING id
+            `);
+            const eventoId = eventoRes.rows[0].id;
+
+            await pool.query(`
+                INSERT INTO tipos_entrada (evento_id, nombre, precio, cantidad_disponible) 
+                VALUES 
+                    ($1, 'Entrada General', 35.00, 500),
+                    ($1, 'Pase VIP Experience', 90.00, 100)
+            `, [eventoId]);
+            console.log("Festival de prueba insertado correctamente.");
+        }
+
+        console.log("Base de datos lista y verificada.");
     } catch (error) {
-        console.error("Error al inicializar las tablas:", error);
+        console.error("Error al inicializar la base de datos:", error);
     }
 }
 
@@ -128,6 +147,36 @@ app.get('/api/eventos', async (req, res) => {
     }
 });
 
+// Endpoint para crear un nuevo evento desde el panel de administración
+app.post('/api/admin/eventos', async (req, res) => {
+    const { titulo, descripcion, fecha, lugar, entradas } = req.body;
+
+    try {
+        await pool.query('BEGIN');
+
+        const eventoRes = await pool.query(
+            `INSERT INTO eventos (titulo, descripcion, fecha, lugar) VALUES ($1, $2, $3, $4) RETURNING id`,
+            [titulo, descripcion, fecha, lugar]
+        );
+        const eventoId = eventoRes.rows[0].id;
+
+        if (entradas && entradas.length > 0) {
+            for (const entrada of entradas) {
+                await pool.query(
+                    `INSERT INTO tipos_entrada (evento_id, nombre, precio, cantidad_disponible) VALUES ($1, $2, $3, $4)`,
+                    [eventoId, entrada.nombre, entrada.precio, entrada.cantidad]
+                );
+            }
+        }
+
+        await pool.query('COMMIT');
+        res.json({ success: true, message: 'Festival creado correctamente' });
+    } catch (error) {
+        await pool.query('ROLLBACK');
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.post('/api/crear-pago', async (req, res) => {
     const { tipo_entrada_id, cantidad, comprador_nombre, comprador_email } = req.body;
 
@@ -173,10 +222,9 @@ app.post('/api/crear-pago', async (req, res) => {
     }
 });
 
-// Servir archivos estáticos del frontend (index.html)
+// Servir archivos estáticos del frontend y panel admin
 app.use(express.static(path.join(__dirname)));
 
-// Inicializar base de datos y arrancar servidor
 inicializarBaseDeDatos().then(() => {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => console.log(`Servidor profesional corriendo en puerto ${PORT}`));
