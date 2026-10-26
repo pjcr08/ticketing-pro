@@ -3,31 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Festivales</title>
+    <title>Panel de Administración - Villafranca de Córdoba</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: #0b091a; color: #fff; padding: 40px 20px; display: flex; justify-content: center; }
-        .admin-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 40px; border-radius: 16px; width: 100%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h1 { color: #ff007f; text-align: center; margin-bottom: 30px; }
+        body { background: #0b091a; color: #fff; padding: 40px 20px; display: flex; justify-content: center; flex-direction: column; align-items: center; }
+        .admin-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 40px; border-radius: 16px; width: 100%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 40px; }
+        h1, h2 { color: #ff007f; text-align: center; margin-bottom: 30px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: #cbd5e0; }
         input, textarea { width: 100%; padding: 12px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #fff; font-size: 14px; }
         input:focus, textarea:focus { outline: none; border-color: #ff007f; }
         .ticket-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
         button { background: linear-gradient(45deg, #ff007f, #7928ca); color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: opacity 0.2s; }
         button:hover { opacity: 0.9; }
-        .back-link { display: block; text-align: center; margin-top: 20px; color: #a0aec0; text-decoration: none; }
+        
+        .event-list-item { background: rgba(255,255,255,0.05); padding: 15px 20px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
+        .delete-btn { background: #ff4d4d; width: auto; padding: 8px 15px; font-size: 14px; }
+        .delete-btn:hover { background: #cc0000; }
+        .back-link { color: #a0aec0; text-decoration: none; margin-top: 10px; }
     </style>
 </head>
 <body>
     <div class="admin-card">
-        <h1>Crear Nuevo Festival</h1>
+        <h1>Crear Nuevo Evento</h1>
         <form id="admin-form">
-            <label>Título del Festival</label>
-            <input type="text" id="titulo" placeholder="Ej: Summer Sound 2026" required>
+            <label>Título del Evento</label>
+            <input type="text" id="titulo" placeholder="Ej: Romería de Villafranca" required>
 
             <label>Descripción</label>
-            <textarea id="descripcion" rows="3" placeholder="Breve descripción" required></textarea>
+            <textarea id="descripcion" rows="3" placeholder="Breve descripción del evento" required></textarea>
 
             <label>URL de la Imagen del Cartel</label>
             <input type="url" id="cartel_url" placeholder="https://ejemplo.com/cartel.jpg" required>
@@ -36,7 +40,7 @@
             <input type="datetime-local" id="fecha" required>
 
             <label>Lugar / Recinto</label>
-            <input type="text" id="lugar" placeholder="Ej: Recinto Ferial, Madrid" required>
+            <input type="text" id="lugar" placeholder="Ej: Recinto Ferial" required>
 
             <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
             <h3>Tipos de Entradas</h3>
@@ -44,24 +48,23 @@
             <div class="ticket-box">
                 <label>Entrada 1 Nombre & Precio (€) & Cantidad</label>
                 <input type="text" id="tipo1_nombre" value="General" required>
-                <input type="number" id="tipo1_precio" value="30" required>
+                <input type="number" id="tipo1_precio" value="10" required>
                 <input type="number" id="tipo1_cantidad" value="200" required>
             </div>
 
-            <div class="ticket-box">
-                <label>Entrada 2 Nombre & Precio (€) & Cantidad</label>
-                <input type="text" id="tipo2_nombre" value="VIP" required>
-                <input type="number" id="tipo2_precio" value="70" required>
-                <input type="number" id="tipo2_cantidad" value="50" required>
-            </div>
-
-            <button type="submit">Publicar Festival</button>
+            <button type="submit">Publicar Evento</button>
         </form>
+    </div>
+
+    <div class="admin-card">
+        <h2>Gestionar Eventos Existentes</h2>
+        <div id="admin-eventos-lista">Cargando eventos...</div>
         <a href="/" class="back-link">← Volver a la página principal</a>
     </div>
 
     <script>
         const API_URL = '';
+
         document.getElementById('admin-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const eventoData = {
@@ -71,8 +74,7 @@
                 fecha: document.getElementById('fecha').value,
                 lugar: document.getElementById('lugar').value,
                 entradas: [
-                    { nombre: document.getElementById('tipo1_nombre').value, precio: parseFloat(document.getElementById('tipo1_precio').value), cantidad: parseInt(document.getElementById('tipo1_cantidad').value) },
-                    { nombre: document.getElementById('tipo2_nombre').value, precio: parseFloat(document.getElementById('tipo2_precio').value), cantidad: parseInt(document.getElementById('tipo2_cantidad').value) }
+                    { nombre: document.getElementById('tipo1_nombre').value, precio: parseFloat(document.getElementById('tipo1_precio').value), cantidad: parseInt(document.getElementById('tipo1_cantidad').value) }
                 ]
             };
             const response = await fetch(`${API_URL}/api/admin/eventos`, {
@@ -81,9 +83,58 @@
                 body: JSON.stringify(eventoData)
             });
             const data = await response.json();
-            if (data.success) { alert('¡Festival publicado!'); window.location.href = '/'; }
+            if (data.success) { alert('¡Evento publicado!'); location.reload(); }
             else { alert('Error: ' + data.error); }
         });
+
+        async function cargarEventosAdmin() {
+            const contenedor = document.getElementById('admin-eventos-lista');
+            try {
+                const response = await fetch(`${API_URL}/api/eventos`);
+                const eventos = await response.json();
+
+                if (!eventos || eventos.length === 0) {
+                    contenedor.innerHTML = '<p style="text-align:center; color:#a0aec0;">No hay eventos creados.</p>';
+                    return;
+                }
+
+                contenedor.innerHTML = '';
+                eventos.forEach(evento => {
+                    contenedor.innerHTML += `
+                        <div class="event-list-item">
+                            <div>
+                                <strong>${evento.titulo}</strong><br>
+                                <small style="color: #a0aec0;">📍 ${evento.lugar}</small>
+                            </div>
+                            <button class="delete-btn" onclick="eliminarEvento(${evento.id})">Eliminar</button>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                contenedor.innerHTML = '<p style="color: #ff4d4d;">Error al cargar la lista.</p>';
+            }
+        }
+
+        async function eliminarEvento(id) {
+            if (!confirm('¿Estás seguro de que deseas eliminar este evento? Se borrarán también sus entradas.')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/eventos/${id}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('Evento eliminado correctamente');
+                    cargarEventosAdmin();
+                } else {
+                    alert('Error al eliminar: ' + data.error);
+                }
+            } catch (err) {
+                alert('Error de conexión con el servidor.');
+            }
+        }
+
+        cargarEventosAdmin();
     </script>
 </body>
 </html>
