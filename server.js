@@ -14,7 +14,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Función para crear las tablas automáticamente si no existen e insertar un evento de prueba
+// Función para crear las tablas automáticamente si no existen (sin datos de prueba)
 async function inicializarBaseDeDatos() {
     try {
         await pool.query(`
@@ -54,25 +54,6 @@ async function inicializarBaseDeDatos() {
                 creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
-
-        const eventosCount = await pool.query('SELECT COUNT(*) FROM eventos');
-        if (parseInt(eventosCount.rows[0].count) === 0) {
-            const eventoRes = await pool.query(`
-                INSERT INTO eventos (titulo, descripcion, fecha, lugar) 
-                VALUES ('Neon Summer Festival 2026', 'El mayor festival de música electrónica y urbana con artistas internacionales.', '2026-07-20 18:00:00', 'Recinto Ferial, Madrid')
-                RETURNING id
-            `);
-            const eventoId = eventoRes.rows[0].id;
-
-            await pool.query(`
-                INSERT INTO tipos_entrada (evento_id, nombre, precio, cantidad_disponible) 
-                VALUES 
-                    ($1, 'Entrada General', 35.00, 500),
-                    ($1, 'Pase VIP Experience', 90.00, 100)
-            `, [eventoId]);
-            console.log("Festival de prueba insertado correctamente.");
-        }
-
         console.log("Base de datos lista y verificada.");
     } catch (error) {
         console.error("Error al inicializar la base de datos:", error);
