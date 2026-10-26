@@ -128,6 +128,35 @@ app.get('/api/eventos', async (req, res) => {
     }
 });
 
+// Endpoint para el resumen de ventas en el Admin
+app.get('/api/admin/resumen', async (req, res) => {
+    try {
+        const totalVentasRes = await pool.query(
+            `SELECT COALESCE(SUM(total), 0) as total_recaudado, COUNT(*) as total_compras FROM compras WHERE estado = 'completado'`
+        );
+        const totalTicketsRes = await pool.query(`SELECT COUNT(*) as total_entradas FROM tickets`);
+
+        const resumenEventosRes = await pool.query(`
+            SELECT e.id, e.titulo, 
+                   COALESCE(COUNT(t.id), 0) as entradas_vendidas,
+                   COALESCE(SUM(c.total), 0) as recaudado
+            FROM eventos e
+            LEFT JOIN tipos_entrada te ON e.id = te.evento_id
+            LEFT JOIN tickets t ON te.id = t.tipo_entrada_id
+            LEFT JOIN compras c ON t.compra_id = c.id AND c.estado = 'completado'
+            GROUP BY e.id, e.titulo
+        `);
+
+        res.json({
+            recaudado_total: parseFloat(totalVentasRes.rows[0].total_recaudado),
+            entradas_vendidas_total: parseInt(totalTicketsRes.rows[0].total_entradas),
+            eventos: resumenEventosRes.rows
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.post('/api/admin/eventos', async (req, res) => {
     const { titulo, descripcion, fecha, lugar, cartel_url, entradas } = req.body;
 
@@ -157,7 +186,6 @@ app.post('/api/admin/eventos', async (req, res) => {
     }
 });
 
-// Endpoint para eliminar un evento
 app.delete('/api/admin/eventos/:id', async (req, res) => {
     const { id } = req.params;
 
