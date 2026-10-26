@@ -133,21 +133,18 @@
     <script>
         const API_URL = '';
         
-        // Fotos representativas de Villafranca de Córdoba y la sierra cordobesa
+        // Fotos locales subidas al mismo nivel que index.html
         const fondos = [
-            'https://raw.githubusercontent.com/public-assets/images/main/villafranca-guadalquivir.jpg',
-            'https://images.unsplash.com/photo-1543785734-4b6e564642f8?auto=format&fit=crop&w=1920&q=80',
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=80',
-            'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=80'
+            './villafranca1.jpg',
+            './villafranca2.jpg',
+            './villafranca3.jpg',
+            './villafranca4.jpg',
+            './villafranca6.jpg'
         ];
         
         let bgIndex = 0;
         function cambiarFondo() {
-            const img = new Image();
-            img.src = fondos[bgIndex];
-            img.onload = () => {
-                document.body.style.backgroundImage = `url('${fondos[bgIndex]}')`;
-            };
+            document.body.style.backgroundImage = `url('${fondos[bgIndex]}')`;
             bgIndex = (bgIndex + 1) % fondos.length;
         }
         cambiarFondo();
