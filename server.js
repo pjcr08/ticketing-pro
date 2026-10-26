@@ -14,6 +14,52 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Función para crear las tablas automáticamente si no existen
+async function inicializarBaseDeDatos() {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS eventos (
+                id SERIAL PRIMARY KEY,
+                titulo VARCHAR(255) NOT NULL,
+                descripcion TEXT,
+                fecha TIMESTAMP NOT NULL,
+                lugar VARCHAR(255) NOT NULL,
+                creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS tipos_entrada (
+                id SERIAL PRIMARY KEY,
+                evento_id INT REFERENCES eventos(id) ON DELETE CASCADE,
+                nombre VARCHAR(100) NOT NULL,
+                precio DECIMAL(10, 2) NOT NULL,
+                cantidad_disponible INT NOT NULL,
+                creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS compras (
+                id SERIAL PRIMARY KEY,
+                comprador_nombre VARCHAR(255) NOT NULL,
+                comprador_email VARCHAR(255) NOT NULL,
+                total DECIMAL(10, 2) NOT NULL,
+                estado VARCHAR(50) DEFAULT 'pendiente',
+                stripe_session_id VARCHAR(255),
+                creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS tickets (
+                id SERIAL PRIMARY KEY,
+                compra_id INT REFERENCES compras(id) ON DELETE CASCADE,
+                tipo_entrada_id INT REFERENCES tipos_entrada(id),
+                codigo_unico VARCHAR(50) UNIQUE NOT NULL,
+                creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log("Tablas verificadas o creadas correctamente en la base de datos.");
+    } catch (error) {
+        console.error("Error al inicializar las tablas:", error);
+    }
+}
+
 // Webhook de Stripe (debe ir antes de express.json())
 app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
@@ -127,8 +173,11 @@ app.post('/api/crear-pago', async (req, res) => {
     }
 });
 
-// Servir archivos estáticos si decides poner el index.html en el backend
+// Servir archivos estáticos del frontend (index.html)
 app.use(express.static(path.join(__dirname)));
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor profesional corriendo en puerto ${PORT}`));
+// Inicializar base de datos y arrancar servidor
+inicializarBaseDeDatos().then(() => {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => console.log(`Servidor profesional corriendo en puerto ${PORT}`));
+});
