@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Festivals & Tickets - Pro</title>
+    <title>Eventos - Villafranca de Córdoba</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
@@ -28,23 +28,51 @@
         h1 { font-size: 3em; margin: 0; background: linear-gradient(45deg, #ff007f, #00ffcc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
         p.subtitle { color: #a0aec0; font-size: 1.1em; margin-top: 10px; }
         
-        .event-card {
+        /* Vista de cuadrícula de eventos */
+        .event-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+        }
+        .event-thumb {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        .event-thumb:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 0, 127, 0.3);
+            border-color: #ff007f;
+        }
+        .thumb-poster { width: 100%; height: 220px; object-fit: cover; }
+        .thumb-content { padding: 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .thumb-title { font-size: 1.3em; font-weight: 700; margin: 0; color: #fff; }
+        .thumb-date { color: #00ffcc; font-size: 0.9em; font-weight: 600; }
+        .thumb-location { color: #a0aec0; font-size: 0.9em; }
+
+        /* Vista detallada del evento seleccionado */
+        .event-detail-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             padding: 30px;
             border-radius: 20px;
-            margin-bottom: 35px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
         }
-        .event-header { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
-        .event-poster { width: 180px; height: 240px; object-fit: cover; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
+        .detail-header { display: flex; gap: 25px; flex-wrap: wrap; align-items: flex-start; }
+        .event-poster { width: 220px; height: 300px; object-fit: cover; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
         .event-details { flex: 1; min-width: 250px; }
-        .event-title { margin: 0 0 10px 0; color: #fff; font-size: 2em; font-weight: 800; }
-        .event-info { color: #cbd5e0; margin: 6px 0; font-size: 1em; }
+        .event-title { margin: 0 0 15px 0; color: #fff; font-size: 2.2em; font-weight: 800; }
+        .event-info { color: #cbd5e0; margin: 8px 0; font-size: 1.05em; line-height: 1.5; }
         
         .ticket-option {
             background: rgba(0, 0, 0, 0.3);
@@ -79,6 +107,16 @@
             transition: transform 0.2s, opacity 0.2s;
         }
         button:hover { opacity: 0.9; transform: scale(1.02); }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff; padding: 10px 20px; border-radius: 8px;
+            cursor: pointer; font-weight: 600; margin-bottom: 20px;
+            display: inline-flex; align-items: center; gap: 8px;
+            transition: background 0.2s;
+        }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.2); }
         .status { text-align: center; font-size: 1.2em; color: #a0aec0; margin-top: 40px; }
     </style>
 </head>
@@ -86,18 +124,20 @@
     <div class="bg-overlay"></div>
     <div class="container">
         <header>
-            <h1>Próximos Festivales</h1>
-            <p class="subtitle">Vive la mejor experiencia en directo</p>
+            <h1>Villafranca de Córdoba</h1>
+            <p class="subtitle">Descubre los eventos y fiestas de nuestro pueblo</p>
         </header>
-        <div id="lista-eventos" class="status">Cargando festivales...</div>
+        <div id="app-content" class="status">Cargando eventos...</div>
     </div>
 
     <script>
         const API_URL = '';
+        // Fondos dinámicos temáticos de Villafranca de Córdoba y entorno
         const fondos = [
             'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1920&q=80',
             'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1920&q=80',
-            'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1920&q=80'
+            'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1920&q=80',
+            'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1920&q=80'
         ];
         let bgIndex = 0;
         function cambiarFondo() {
@@ -107,62 +147,111 @@
         cambiarFondo();
         setInterval(cambiarFondo, 6000);
 
+        let eventosGlobales = [];
+        let eventoSeleccionadoId = null;
+
         async function cargarEventos() {
-            const contenedor = document.getElementById('lista-eventos');
+            const contenedor = document.getElementById('app-content');
             try {
                 const response = await fetch(`${API_URL}/api/eventos`);
-                const eventos = await response.json();
+                eventosGlobales = await response.json();
 
-                if (!eventos || eventos.length === 0) {
-                    contenedor.innerHTML = '<p>No hay festivales disponibles en este momento. ¡Crea uno desde el panel de administración!</p>';
-                    return;
-                }
-
-                contenedor.innerHTML = '';
-                eventos.forEach(evento => {
-                    let entradasHtml = '';
-                    if (evento.tipos_entrada && evento.tipos_entrada.length > 0) {
-                        evento.tipos_entrada.forEach(tipo => {
-                            entradasHtml += `
-                                <div class="ticket-option">
-                                    <div class="ticket-info">
-                                        <span class="ticket-name">🎟️ ${tipo.nombre}</span>
-                                        <span class="price">${tipo.precio} €</span>
-                                    </div>
-                                    <form onsubmit="comprarEntrada(event, ${tipo.id})">
-                                        <input type="text" name="nombre" placeholder="Tu nombre" required>
-                                        <input type="email" name="email" placeholder="Tu correo electrónico" required>
-                                        <button type="submit">Comprar</button>
-                                    </form>
-                                </div>
-                            `;
-                        });
-                    } else {
-                        entradasHtml = '<p style="color: #a0aec0; margin-top: 15px;"><em>Entradas próximamente a la venta.</em></p>';
-                    }
-
-                    const cartelImg = evento.cartel_url ? `<img src="${evento.cartel_url}" class="event-poster" alt="Cartel">` : '';
-
-                    contenedor.innerHTML += `
-                        <div class="event-card">
-                            <div class="event-header">
-                                ${cartelImg}
-                                <div class="event-details">
-                                    <h2 class="event-title">${evento.titulo}</h2>
-                                    <p class="event-info">${evento.descripcion}</p>
-                                    <p class="event-info">📍 <strong>Lugar:</strong> ${evento.lugar}</p>
-                                    <p class="event-info">📅 <strong>Fecha:</strong> ${new Date(evento.fecha).toLocaleString()}</p>
-                                </div>
-                            </div>
-                            <div class="ticket-section">
-                                ${entradasHtml}
-                            </div>
-                        </div>
-                    `;
-                });
+                renderizarVista();
             } catch (error) {
                 contenedor.innerHTML = '<p style="color: #ff4d4d;">Error al conectar con el servidor.</p>';
             }
+        }
+
+        function renderizarVista() {
+            const contenedor = document.getElementById('app-content');
+
+            if (!eventosGlobales || eventosGlobales.length === 0) {
+                contenedor.innerHTML = '<p>No hay eventos disponibles en este momento en Villafranca de Córdoba. ¡Crea uno desde el panel de administración!</p>';
+                return;
+            }
+
+            // Si hay un evento seleccionado, mostramos su detalle completo y pasarela
+            if (eventoSeleccionadoId !== null) {
+                const evento = eventosGlobales.find(e => e.id === eventoSeleccionadoId);
+                if (!evento) {
+                    eventoSeleccionadoId = null;
+                    renderizarVista();
+                    return;
+                }
+
+                let entradasHtml = '';
+                if (evento.tipos_entrada && evento.tipos_entrada.length > 0) {
+                    evento.tipos_entrada.forEach(tipo => {
+                        entradasHtml += `
+                            <div class="ticket-option">
+                                <div class="ticket-info">
+                                    <span class="ticket-name">🎟️ ${tipo.nombre}</span>
+                                    <span class="price">${tipo.precio} €</span>
+                                </div>
+                                <form onsubmit="comprarEntrada(event, ${tipo.id})">
+                                    <input type="text" name="nombre" placeholder="Tu nombre" required>
+                                    <input type="email" name="email" placeholder="Tu correo electrónico" required>
+                                    <button type="submit">Comprar</button>
+                                </form>
+                            </div>
+                        `;
+                    });
+                } else {
+                    entradasHtml = '<p style="color: #a0aec0; margin-top: 15px;"><em>Entradas próximamente a la venta.</em></p>';
+                }
+
+                const cartelImg = evento.cartel_url ? `<img src="${evento.cartel_url}" class="event-poster" alt="Cartel">` : '';
+
+                contenedor.innerHTML = `
+                    <button class="back-btn" onclick="volverAlListado()">← Volver a todos los eventos</button>
+                    <div class="event-detail-card">
+                        <div class="detail-header">
+                            ${cartelImg}
+                            <div class="event-details">
+                                <h2 class="event-title">${evento.titulo}</h2>
+                                <p class="event-info">${evento.descripcion}</p>
+                                <p class="event-info">📍 <strong>Lugar:</strong> ${evento.lugar}, Villafranca de Córdoba</p>
+                                <p class="event-info">📅 <strong>Fecha:</strong> ${new Date(evento.fecha).toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <div class="ticket-section">
+                            <h3 style="margin-top:0; color:#00ffcc;">Selecciona tus entradas</h3>
+                            ${entradasHtml}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Si no hay ninguno seleccionado, mostramos la cuadrícula con todos los eventos de Villafranca
+            let gridHtml = '<div class="event-grid">';
+            eventosGlobales.forEach(evento => {
+                const img = evento.cartel_url ? evento.cartel_url : 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80';
+                gridHtml += `
+                    <div class="event-thumb" onclick="seleccionarEvento(${evento.id})">
+                        <img src="${img}" class="thumb-poster" alt="Cartel evento">
+                        <div class="thumb-content">
+                            <h3 class="thumb-title">${evento.titulo}</h3>
+                            <span class="thumb-date">📅 ${new Date(evento.fecha).toLocaleDateString()}</span>
+                            <span class="thumb-location">📍 ${evento.lugar}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            gridHtml += '</div>';
+            contenedor.innerHTML = gridHtml;
+        }
+
+        function seleccionarEvento(id) {
+            eventoSeleccionadoId = id;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            renderizarVista();
+        }
+
+        function volverAlListado() {
+            eventoSeleccionadoId = null;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            renderizarVista();
         }
 
         async function comprarEntrada(event, tipoEntradaId) {
