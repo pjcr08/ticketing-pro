@@ -150,9 +150,21 @@ app.post('/api/admin/eventos', async (req, res) => {
         }
 
         await pool.query('COMMIT');
-        res.json({ success: true, message: 'Festival creado correctamente' });
+        res.json({ success: true, message: 'Evento creado correctamente' });
     } catch (error) {
         await pool.query('ROLLBACK');
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Endpoint para eliminar un evento
+app.delete('/api/admin/eventos/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        await pool.query('DELETE FROM eventos WHERE id = $1', [id]);
+        res.json({ success: true, message: 'Evento eliminado correctamente' });
+    } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
