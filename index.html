@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eventos - Villafranca de Córdoba</title>
+    <title>Próximos Eventos - Villafranca de Córdoba</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
@@ -15,12 +15,12 @@
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            transition: background-image 1s ease-in-out;
+            transition: background-image 1.2s ease-in-out;
             background-color: #0f0c29;
         }
         .bg-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 8, 25, 0.85);
+            background: rgba(10, 8, 25, 0.82);
             z-index: -1;
         }
         .container { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
@@ -124,20 +124,20 @@
     <div class="bg-overlay"></div>
     <div class="container">
         <header>
-            <h1>Villafranca de Córdoba</h1>
-            <p class="subtitle">Descubre los eventos y fiestas de nuestro pueblo</p>
+            <h1>PRÓXIMOS EVENTOS</h1>
+            <p class="subtitle">Descubre los eventos y fiestas de Villafranca de Córdoba</p>
         </header>
         <div id="app-content" class="status">Cargando eventos...</div>
     </div>
 
     <script>
         const API_URL = '';
-        // Fondos dinámicos temáticos de Villafranca de Córdoba y entorno
+        // Fotos del entorno y naturaleza de Villafranca de Córdoba y el Guadalquivir
         const fondos = [
-            'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1920&q=80',
-            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1920&q=80',
-            'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1920&q=80',
-            'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1920&q=80'
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Puente_de_Hierro_en_Villafranca_de_C%C3%B3rdoba.jpg/1280px-Puente_de_Hierro_en_Villafranca_de_C%C3%B3rdoba.jpg',
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Rio_Guadalquivir_en_Villafranca_de_C%C3%B3rdoba.jpg/1280px-Rio_Guadalquivir_en_Villafranca_de_C%C3%B3rdoba.jpg',
+            'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80',
+            'https://images.unsplash.com/photo-1511497584788-876761c119ee?auto=format&fit=crop&w=1920&q=80'
         ];
         let bgIndex = 0;
         function cambiarFondo() {
@@ -166,11 +166,10 @@
             const contenedor = document.getElementById('app-content');
 
             if (!eventosGlobales || eventosGlobales.length === 0) {
-                contenedor.innerHTML = '<p>No hay eventos disponibles en este momento en Villafranca de Córdoba. ¡Crea uno desde el panel de administración!</p>';
+                contenedor.innerHTML = '<p>No hay eventos disponibles en este momento en Villafranca de Córdoba.</p>';
                 return;
             }
 
-            // Si hay un evento seleccionado, mostramos su detalle completo y pasarela
             if (eventoSeleccionadoId !== null) {
                 const evento = eventosGlobales.find(e => e.id === eventoSeleccionadoId);
                 if (!evento) {
@@ -223,7 +222,6 @@
                 return;
             }
 
-            // Si no hay ninguno seleccionado, mostramos la cuadrícula con todos los eventos de Villafranca
             let gridHtml = '<div class="event-grid">';
             eventosGlobales.forEach(evento => {
                 const img = evento.cartel_url ? evento.cartel_url : 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80';
