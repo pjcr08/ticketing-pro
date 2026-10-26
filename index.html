@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Entradas</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f8; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { text-align: center; color: #1a1a2e; }
+        .event-card { background: #fff; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .event-title { margin-top: 0; color: #16213e; }
+        .ticket-option { border-top: 1px solid #eee; margin-top: 15px; padding-top: 15px; }
+        .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .price { font-size: 1.2em; font-weight: bold; color: #0f3460; }
+        form { display: grid; gap: 10px; margin-top: 10px; }
+        input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+        button { background-color: #635bff; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        button:hover { background-color: #4b44dc; }
+        .status { text-align: center; font-size: 1.1em; color: #666; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Entradas Disponibles</h1>
+        <div id="lista-eventos" class="status">Cargando eventos...</div>
+    </div>
+
+    <script>
+        // Sustituye por la URL real de tu Web Service en Render
+        const API_URL = 'https://ticketing-pro.onrender.com';
+
+        async function cargarEventos() {
+            const contenedor = document.getElementById('lista-eventos');
+            try {
+                const response = await fetch(`${API_URL}/api/eventos`);
+                const eventos = await response.json();
+
+                if (!eventos || eventos.length === 0) {
+                    contenedor.innerHTML = '<p>No hay eventos disponibles en este momento.</p>';
+                    return;
+                }
+
+                contenedor.innerHTML = '';
+                eventos.forEach(evento => {
+                    let entradasHtml = '';
+                    if (evento.tipos_entrada && evento.tipos_entrada.length > 0) {
+                        evento.tipos_entrada.forEach(tipo => {
+                            entradasHtml += `
+                                <div class="ticket-option">
+                                    <div class="ticket-header">
+                                        <span><strong>${tipo.nombre}</strong></span>
+                                        <span class="price">${tipo.precio} €</span>
+                                    </div>
+                                    <form onsubmit="comprarEntrada(event, ${tipo.id})">
+                                        <input type="text" name="nombre" placeholder="Nombre completo" required>
+                                        <input type="email" name="email" placeholder="Correo electrónico" required>
+                                        <button type="submit">Comprar entrada</button>
+                                    </form>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        entradasHtml = '<p><em>No hay tipos de entrada disponibles para este evento.</em></p>';
+                    }
+
+                    contenedor.innerHTML += `
+                        <div class="event-card">
+                            <h2 class="event-title">${evento.titulo}</h2>
+                            <p>${evento.descripcion}</p>
+                            <p>📍 <strong>Lugar:</strong> ${evento.lugar}</p>
+                            <p>📅 <strong>Fecha:</strong> ${new Date(evento.fecha).toLocaleString()}</p>
+                            ${entradasHtml}
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                contenedor.innerHTML = '<p>Error al conectar con el servidor.</p>';
+                console.error(error);
+            }
+        }
+
+        async function comprarEntrada(event, tipoEntradaId) {
+            event.preventDefault();
+            const form = event.target;
+            const nombre = form.nombre.value;
+            const email = form.email.value;
+
+            try {
+                const response = await fetch(`${API_URL}/api/crear-pago`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tipo_entrada_id: tipoEntradaId,
+                        cantidad: 1,
+                        comprador_nombre: nombre,
+                        comprador_email: email
+                    })
+                });
+
+                const data = await response.json();
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert('Error al procesar el pago: ' + (data.error || 'Inténtalo de nuevo.'));
+                }
+            } catch (err) {
+                alert('Hubo un problema al conectar con la pasarela de pago.');
+            }
+        }
+
+        cargarEventos();
+    </script>
+</body>
+</html>
