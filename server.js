@@ -14,7 +14,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Función para crear las tablas automáticamente si no existen (sin datos de prueba)
 async function inicializarBaseDeDatos() {
     try {
         await pool.query(`
@@ -35,6 +34,8 @@ async function inicializarBaseDeDatos() {
                 cantidad_disponible INT NOT NULL,
                 creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+
+            ALTER TABLE tipos_entrada ADD COLUMN IF NOT EXISTS cantidad_disponible INT NOT NULL DEFAULT 100;
 
             CREATE TABLE IF NOT EXISTS compras (
                 id SERIAL PRIMARY KEY,
@@ -60,7 +61,6 @@ async function inicializarBaseDeDatos() {
     }
 }
 
-// Webhook de Stripe (debe ir antes de express.json())
 app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
     let event;
@@ -111,7 +111,6 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
 app.use(cors());
 app.use(express.json());
 
-// Endpoint para obtener los eventos y sus tipos de entrada
 app.get('/api/eventos', async (req, res) => {
     try {
         const eventosRes = await pool.query('SELECT * FROM eventos ORDER BY fecha ASC');
@@ -128,7 +127,6 @@ app.get('/api/eventos', async (req, res) => {
     }
 });
 
-// Endpoint para crear un nuevo evento desde el panel de administración
 app.post('/api/admin/eventos', async (req, res) => {
     const { titulo, descripcion, fecha, lugar, entradas } = req.body;
 
@@ -203,7 +201,6 @@ app.post('/api/crear-pago', async (req, res) => {
     }
 });
 
-// Servir archivos estáticos del frontend y panel admin
 app.use(express.static(path.join(__dirname)));
 
 inicializarBaseDeDatos().then(() => {
