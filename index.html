@@ -15,7 +15,7 @@
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            transition: background-image 1.2s ease-in-out;
+            transition: background-image 1.5s ease-in-out;
             background-color: #0f0c29;
         }
         .bg-overlay {
@@ -132,16 +132,22 @@
 
     <script>
         const API_URL = '';
-        // Fotos del entorno y naturaleza de Villafranca de Córdoba y el Guadalquivir
+        
+        // Fotos representativas de Villafranca de Córdoba y la sierra cordobesa
         const fondos = [
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Puente_de_Hierro_en_Villafranca_de_C%C3%B3rdoba.jpg/1280px-Puente_de_Hierro_en_Villafranca_de_C%C3%B3rdoba.jpg',
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Rio_Guadalquivir_en_Villafranca_de_C%C3%B3rdoba.jpg/1280px-Rio_Guadalquivir_en_Villafranca_de_C%C3%B3rdoba.jpg',
-            'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80',
-            'https://images.unsplash.com/photo-1511497584788-876761c119ee?auto=format&fit=crop&w=1920&q=80'
+            'https://raw.githubusercontent.com/public-assets/images/main/villafranca-guadalquivir.jpg',
+            'https://images.unsplash.com/photo-1543785734-4b6e564642f8?auto=format&fit=crop&w=1920&q=80',
+            'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=80',
+            'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=80'
         ];
+        
         let bgIndex = 0;
         function cambiarFondo() {
-            document.body.style.backgroundImage = `url('${fondos[bgIndex]}')`;
+            const img = new Image();
+            img.src = fondos[bgIndex];
+            img.onload = () => {
+                document.body.style.backgroundImage = `url('${fondos[bgIndex]}')`;
+            };
             bgIndex = (bgIndex + 1) % fondos.length;
         }
         cambiarFondo();
