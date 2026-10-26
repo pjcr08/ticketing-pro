@@ -7,25 +7,52 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: #0b091a; color: #fff; padding: 40px 20px; display: flex; justify-content: center; flex-direction: column; align-items: center; }
-        .admin-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 40px; border-radius: 16px; width: 100%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 40px; }
-        h1, h2 { color: #ff007f; text-align: center; margin-bottom: 30px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #cbd5e0; }
-        input, textarea { width: 100%; padding: 12px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #fff; font-size: 14px; }
+        body { background: #0b091a; color: #fff; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
+        .admin-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 16px; width: 100%; max-width: 700px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 30px; }
+        h1, h2, h3 { color: #ff007f; margin-top: 0; }
+        
+        /* Stats Dashboard */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px; }
+        .stat-box { background: rgba(0, 255, 204, 0.05); border: 1px solid rgba(0, 255, 204, 0.2); padding: 20px; border-radius: 12px; text-align: center; }
+        .stat-number { font-size: 2em; font-weight: 800; color: #00ffcc; }
+        .stat-label { color: #a0aec0; font-size: 0.9em; }
+
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: #cbd5e0; margin-top: 10px; }
+        input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #fff; font-size: 14px; }
         input:focus, textarea:focus { outline: none; border-color: #ff007f; }
-        .ticket-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
-        button { background: linear-gradient(45deg, #ff007f, #7928ca); color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: opacity 0.2s; }
-        button:hover { opacity: 0.9; }
+        
+        .ticket-box { background: rgba(0,0,0,0.25); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.08); position: relative; }
+        .ticket-row { display: flex; gap: 10px; }
+        .ticket-row input { flex: 1; }
+
+        .btn-main { background: linear-gradient(45deg, #ff007f, #7928ca); color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; }
+        .btn-add-ticket { background: rgba(255,255,255,0.1); color: #00ffcc; border: 1px dashed #00ffcc; padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: 600; margin-bottom: 20px; }
         
         .event-list-item { background: rgba(255,255,255,0.05); padding: 15px 20px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
-        .delete-btn { background: #ff4d4d; width: auto; padding: 8px 15px; font-size: 14px; }
-        .delete-btn:hover { background: #cc0000; }
-        .back-link { color: #a0aec0; text-decoration: none; margin-top: 10px; }
+        .delete-btn { background: #ff4d4d; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .back-link { color: #a0aec0; text-decoration: none; text-align: center; display: block; margin-top: 15px; }
     </style>
 </head>
 <body>
+
+    <!-- RESUMEN DE VENTAS EN TIEMPO REAL -->
     <div class="admin-card">
-        <h1>Crear Nuevo Evento</h1>
+        <h2>📊 Resumen de Ventas</h2>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-number" id="total-recaudado">0.00 €</div>
+                <div class="stat-label">Recaudación Total</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="total-entradas">0</div>
+                <div class="stat-label">Entradas Vendidas</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMULARIO CREAR EVENTO -->
+    <div class="admin-card">
+        <h1>➕ Crear Nuevo Evento</h1>
         <form id="admin-form">
             <label>Título del Evento</label>
             <input type="text" id="titulo" placeholder="Ej: Romería de Villafranca" required>
@@ -45,19 +72,31 @@
             <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
             <h3>Tipos de Entradas</h3>
             
-            <div class="ticket-box">
-                <label>Entrada 1 Nombre & Precio (€) & Cantidad</label>
-                <input type="text" id="tipo1_nombre" value="General" required>
-                <input type="number" id="tipo1_precio" value="10" required>
-                <input type="number" id="tipo1_cantidad" value="200" required>
+            <div id="contenedor-entradas">
+                <div class="ticket-box">
+                    <label>Nombre de la entrada</label>
+                    <input type="text" class="t-nombre" value="General" required>
+                    <div class="ticket-row">
+                        <div>
+                            <label>Precio (€)</label>
+                            <input type="number" step="0.01" class="t-precio" value="10.00" required>
+                        </div>
+                        <div>
+                            <label>Cantidad total</label>
+                            <input type="number" class="t-cantidad" value="200" required>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <button type="submit">Publicar Evento</button>
+            <button type="button" class="btn-add-ticket" onclick="agregarCampoEntrada()">+ Añadir otro tipo de entrada</button>
+            <button type="submit" class="btn-main">Publicar Evento</button>
         </form>
     </div>
 
+    <!-- GESTIÓN DE EVENTOS -->
     <div class="admin-card">
-        <h2>Gestionar Eventos Existentes</h2>
+        <h2>🗑️ Gestionar Eventos</h2>
         <div id="admin-eventos-lista">Cargando eventos...</div>
         <a href="/" class="back-link">← Volver a la página principal</a>
     </div>
@@ -65,33 +104,75 @@
     <script>
         const API_URL = '';
 
+        function agregarCampoEntrada() {
+            const div = document.createElement('div');
+            div.className = 'ticket-box';
+            div.innerHTML = `
+                <label>Nombre de la entrada</label>
+                <input type="text" class="t-nombre" placeholder="Ej: VIP / Anticipada" required>
+                <div class="ticket-row">
+                    <div>
+                        <label>Precio (€)</label>
+                        <input type="number" step="0.01" class="t-precio" placeholder="20.00" required>
+                    </div>
+                    <div>
+                        <label>Cantidad total</label>
+                        <input type="number" class="t-cantidad" placeholder="100" required>
+                    </div>
+                </div>
+            `;
+            document.getElementById('contenedor-entradas').appendChild(div);
+        }
+
         document.getElementById('admin-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const nombres = document.querySelectorAll('.t-nombre');
+            const precios = document.querySelectorAll('.t-precio');
+            const cantidades = document.querySelectorAll('.t-cantidad');
+            
+            const entradas = [];
+            for (let i = 0; i < nombres.length; i++) {
+                entradas.push({
+                    nombre: nombres[i].value,
+                    precio: parseFloat(precios[i].value),
+                    cantidad: parseInt(cantidades[i].value)
+                });
+            }
+
             const eventoData = {
                 titulo: document.getElementById('titulo').value,
                 descripcion: document.getElementById('descripcion').value,
                 cartel_url: document.getElementById('cartel_url').value,
                 fecha: document.getElementById('fecha').value,
                 lugar: document.getElementById('lugar').value,
-                entradas: [
-                    { nombre: document.getElementById('tipo1_nombre').value, precio: parseFloat(document.getElementById('tipo1_precio').value), cantidad: parseInt(document.getElementById('tipo1_cantidad').value) }
-                ]
+                entradas: entradas
             };
+
             const response = await fetch(`${API_URL}/api/admin/eventos`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(eventoData)
             });
+
             const data = await response.json();
-            if (data.success) { alert('¡Evento publicado!'); location.reload(); }
+            if (data.success) { alert('¡Evento creado con éxito!'); location.reload(); }
             else { alert('Error: ' + data.error); }
         });
 
-        async function cargarEventosAdmin() {
-            const contenedor = document.getElementById('admin-eventos-lista');
+        async function cargarResumenYEventos() {
             try {
-                const response = await fetch(`${API_URL}/api/eventos`);
-                const eventos = await response.json();
+                // Cargar Estadísticas generales
+                const resStats = await fetch(`${API_URL}/api/admin/resumen`);
+                const stats = await resStats.json();
+                
+                document.getElementById('total-recaudado').innerText = `${stats.recaudado_total.toFixed(2)} €`;
+                document.getElementById('total-entradas').innerText = stats.entradas_vendidas_total;
+
+                // Cargar lista de eventos
+                const resEventos = await fetch(`${API_URL}/api/eventos`);
+                const eventos = await resEventos.json();
+                const contenedor = document.getElementById('admin-eventos-lista');
 
                 if (!eventos || eventos.length === 0) {
                     contenedor.innerHTML = '<p style="text-align:center; color:#a0aec0;">No hay eventos creados.</p>';
@@ -100,41 +181,30 @@
 
                 contenedor.innerHTML = '';
                 eventos.forEach(evento => {
+                    const infoStats = stats.eventos.find(ev => ev.id === evento.id) || { entradas_vendidas: 0, recaudado: 0 };
                     contenedor.innerHTML += `
                         <div class="event-list-item">
                             <div>
                                 <strong>${evento.titulo}</strong><br>
-                                <small style="color: #a0aec0;">📍 ${evento.lugar}</small>
+                                <small style="color: #00ffcc;">🎟️ Vendidas: ${infoStats.entradas_vendidas} | 💰 Recaudado: ${parseFloat(infoStats.recaudado).toFixed(2)} €</small>
                             </div>
                             <button class="delete-btn" onclick="eliminarEvento(${evento.id})">Eliminar</button>
                         </div>
                     `;
                 });
             } catch (err) {
-                contenedor.innerHTML = '<p style="color: #ff4d4d;">Error al cargar la lista.</p>';
+                console.error(err);
             }
         }
 
         async function eliminarEvento(id) {
-            if (!confirm('¿Estás seguro de que deseas eliminar este evento? Se borrarán también sus entradas.')) return;
-
-            try {
-                const response = await fetch(`${API_URL}/api/admin/eventos/${id}`, {
-                    method: 'DELETE'
-                });
-                const data = await response.json();
-                if (data.success) {
-                    alert('Evento eliminado correctamente');
-                    cargarEventosAdmin();
-                } else {
-                    alert('Error al eliminar: ' + data.error);
-                }
-            } catch (err) {
-                alert('Error de conexión con el servidor.');
-            }
+            if (!confirm('¿Seguro que deseas borrar este evento?')) return;
+            const res = await fetch(`${API_URL}/api/admin/eventos/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) { cargarResumenYEventos(); }
         }
 
-        cargarEventosAdmin();
+        cargarResumenYEventos();
     </script>
 </body>
 </html>
